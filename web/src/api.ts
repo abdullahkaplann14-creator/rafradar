@@ -1,4 +1,12 @@
-import type { Dashboard, Item, ItemInput, ItemStatus } from './types';
+import type {
+  AccountingData,
+  Dashboard,
+  Item,
+  ItemInput,
+  ItemStatus,
+  Transaction,
+  TransactionInput,
+} from './types';
 
 export class ApiError extends Error {
   status: number;
@@ -84,9 +92,33 @@ export const api = {
     request<Item>(`/api/items/${encodeURIComponent(id)}/reopen`, { method: 'POST' }),
 
   loadDemo: () =>
-    request<{ inserted: number; skipped: boolean; message?: string }>('/api/demo', {
+    request<{ inserted: number; transactionsInserted: number; skipped: boolean; message?: string }>(
+      '/api/demo',
+      {
+        method: 'POST',
+      },
+    ),
+
+  getAccounting: (month: string) =>
+    request<AccountingData>(`/api/accounting?month=${encodeURIComponent(month)}`),
+
+  createTransaction: (input: TransactionInput) =>
+    request<Transaction>('/api/transactions', {
       method: 'POST',
+      body: JSON.stringify(input),
     }),
+
+  updateTransaction: (id: string, input: Partial<TransactionInput>) =>
+    request<Transaction>(`/api/transactions/${encodeURIComponent(id)}`, {
+      method: 'PATCH',
+      body: JSON.stringify(input),
+    }),
+
+  deleteTransaction: (id: string) =>
+    request<void>(`/api/transactions/${encodeURIComponent(id)}`, { method: 'DELETE' }),
+
+  transactionCsvUrl: (month: string) =>
+    `/api/transactions/export.csv?month=${encodeURIComponent(month)}`,
 
   exportCsvUrl: '/api/items/export.csv',
 };

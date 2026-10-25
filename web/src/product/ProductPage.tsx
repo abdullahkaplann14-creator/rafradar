@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import {
   AlertTriangle,
+  ArrowRight,
   Check,
   CheckCircle2,
   Clock,
@@ -19,7 +20,7 @@ import {
 } from 'lucide-react';
 import { api, errorMessage } from '../api';
 import { useProductActions } from '../hooks/useProductActions';
-import { Logo } from '../components/Logo';
+import { ProductTopbar } from '../components/ProductTopbar';
 import { Toasts, useToasts } from '../components/Toast';
 import { EmptyState } from './EmptyState';
 import { ItemModal } from './ItemModal';
@@ -30,6 +31,7 @@ import {
   formatDate,
   formatMoney,
   itemValue,
+  monthLabel,
   normalize,
   statusLabel,
   todayLong,
@@ -190,39 +192,7 @@ export function ProductPage() {
 
   return (
     <div className="product">
-      <header className="pd-topbar">
-        <div className="pd-topbar-inner">
-          <Link to="/" className="pd-brand" aria-label="RafRadar ana sayfa">
-            <Logo />
-            <span className="pd-brand-tag">PANEL</span>
-          </Link>
-          <nav className="pd-nav" aria-label="Panel menüsü">
-            <a href="#panel">Panel</a>
-            <a href="#urunler">Ürünler</a>
-            <Link to="/">Satış sayfası</Link>
-          </nav>
-          <div className="pd-topbar-actions">
-            <a
-              className={`button button--ghost button--small ${data?.items.length ? '' : 'is-disabled'}`}
-              href={data?.items.length ? api.exportCsvUrl : undefined}
-              download
-              aria-disabled={!data?.items.length}
-            >
-              <Download size={14} />
-              CSV
-            </a>
-            <button
-              type="button"
-              className="button button--primary button--small"
-              onClick={openCreate}
-              disabled={!data}
-            >
-              <Plus size={15} />
-              Yeni ürün
-            </button>
-          </div>
-        </div>
-      </header>
+      <ProductTopbar />
 
       <main className="pd-main">
         {query.isLoading && !data ? <DashboardSkeleton /> : null}
@@ -473,6 +443,44 @@ export function ProductPage() {
                 </div>
               </aside>
             </div>
+
+            <section className="panel cashflow-panel">
+              <div className="cashflow-copy">
+                <p className="panel-kicker">KASA · {monthLabel(data.accounting.month)}</p>
+                <h2>Rafın yanında kasa da hazır.</h2>
+                <p>
+                  Gelir-gideri, KDV’yi ve aylık net kârı aynı panelde takip et.
+                  {data.accounting.transactionCount === 0
+                    ? ' Bu ay henüz kayıt yok; ilk işlemi ekle.'
+                    : ` Bu ay ${data.accounting.transactionCount} kayıt var.`}
+                </p>
+                <Link to="/app/kasa" className="button button--outline button--small">
+                  Kasa defterini aç
+                  <ArrowRight size={14} />
+                </Link>
+              </div>
+              <div className="cashflow-stats">
+                <div>
+                  <span>Gelir</span>
+                  <strong>{formatMoney(data.accounting.incomeTotal)}</strong>
+                </div>
+                <div>
+                  <span>Gider</span>
+                  <strong>{formatMoney(data.accounting.expenseTotal)}</strong>
+                </div>
+                <div className={data.accounting.net >= 0 ? 'is-positive' : 'is-negative'}>
+                  <span>Net kâr</span>
+                  <strong>
+                    {data.accounting.net >= 0 ? '+' : ''}
+                    {formatMoney(data.accounting.net)}
+                  </strong>
+                </div>
+                <div>
+                  <span>KDV ödenecek</span>
+                  <strong>{formatMoney(data.accounting.vatPayable)}</strong>
+                </div>
+              </div>
+            </section>
 
             <section className="panel inventory-panel" id="urunler">
               <header className="inventory-head">

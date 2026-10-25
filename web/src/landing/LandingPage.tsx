@@ -9,10 +9,12 @@ import {
   Milk,
   Package,
   Radar,
+  Receipt,
   ShieldCheck,
   Sparkles,
   Trash2,
   TrendingDown,
+  TrendingUp,
   Wallet,
   Zap,
 } from 'lucide-react';
@@ -29,6 +31,7 @@ const plans = [
       '60 ürüne kadar',
       'Son kullanma ve risk paneli',
       'Kurtarma + fire kaydı',
+      'Gelir-gider defteri',
       '30 günlük geçmiş',
     ],
     cta: 'Başlangıç ile dene',
@@ -43,6 +46,7 @@ const plans = [
       '1 şube',
       'Sınırsız ürün',
       '7 günlük risk paneli',
+      'Gelir-gider + KDV defteri',
       'Tüm geçmiş',
       'CSV dışa aktarma',
       'Öncelikli destek',
@@ -89,6 +93,10 @@ const faqs = [
     a: 'RafRadar’ı bedava yaparsak geliştirmeye devam edemeyiz. Aylık 299 TL, günde tek bir ürünü kurtardığınızda kendini fazlasıyla çıkarır. 14 gün boyunca kredi kartı istemiyoruz.',
   },
   {
+    q: 'Muhasebe programım var, neden burada kasa tutayım?',
+    a: 'RafRadar tam bir muhasebe programı ya da e-fatura çözümü değil. Günlük gelir-gideri, ödeme yöntemini ve KDV özetini rafın yanında gösterir. Ay sonu net kârı görmek ve firenin gerçek etkisini anlamak için tasarlandı.',
+  },
+  {
     q: 'Tek başıma çalışıyorum, bana fazla mı?',
     a: 'Tam tersi: ürünü tek şubeli, 3-15 kişilik bağımsız kafeler için tasarladık. Başlangıç planı 60 ürüne kadar yeterli.',
   },
@@ -121,7 +129,7 @@ export function LandingPage() {
             <div className="lp-hero-copy">
               <p className="lp-eyebrow">
                 <span aria-hidden="true" />
-                Kafeler için fire kontrolü
+                Kafeler için raf + kasa
               </p>
               <h1>
                 Rafındaki para
@@ -129,8 +137,8 @@ export function LandingPage() {
                 <em>çöpe gitmesin.</em>
               </h1>
               <p className="lp-lede">
-                Kafendeki ürünlerin son kullanma tarihini tek ekranda topla. Bu hafta
-                riskte olanı gör, indirimle kurtar, fireyi ölç.
+                Kafendeki ürünlerin son kullanma tarihini ve kasadaki parayı tek ekranda
+                topla. Bu hafta riskte olanı gör, indirimle kurtar, fireyi ve net kârı ölç.
               </p>
               <div className="lp-hero-actions">
                 <Link to="/app" className="button button--primary button--lg">
@@ -169,7 +177,7 @@ export function LandingPage() {
                 </div>
                 <div>
                   <strong>1 ekran</strong>
-                  <span>tüm raf</span>
+                  <span>raf + kasa</span>
                 </div>
               </div>
             </div>
@@ -296,8 +304,8 @@ export function LandingPage() {
                 </h2>
               </div>
               <p>
-                RafRadar bir muhasebe programı değil. Tek işi var: rafındaki ürünün
-                tarihini ve parasını görünür kılmak.
+                RafRadar tam bir muhasebe programı değil. Rafın ve kasanın günlük kararını
+                tek ekranda görünür kılar.
               </p>
             </div>
 
@@ -432,6 +440,109 @@ export function LandingPage() {
                   tasarrufu gör.
                 </p>
               </article>
+            </div>
+          </div>
+        </section>
+
+        <section className="lp-cash">
+          <div className="lp-container cash-grid">
+            <div className="cash-copy">
+              <p className="lp-eyebrow">
+                <span aria-hidden="true" />
+                Raf + kasa
+              </p>
+              <h2>
+                Rafı kurtaran panel,
+                <br />
+                <em>kasadaki parayı da</em> görür.
+              </h2>
+              <p>
+                Son kullanma tarihini takip ederken günün gelirini ve giderini de aynı
+                yere yaz. Ay sonunda iki sorunun cevabı hazır: ne kadar fire verdim, ne
+                kadar kazandım?
+              </p>
+              <ul className="cash-list">
+                <li>
+                  <span>
+                    <Wallet size={18} />
+                  </span>
+                  <div>
+                    <strong>Günlük gelir-gider</strong>
+                    <small>Nakit, kart, havale; belge no ve KDV ile.</small>
+                  </div>
+                </li>
+                <li>
+                  <span>
+                    <Receipt size={18} />
+                  </span>
+                  <div>
+                    <strong>KDV özeti</strong>
+                    <small>Hesaplanan ve indirilecek KDV; ay sonu tek bakış.</small>
+                  </div>
+                </li>
+                <li>
+                  <span>
+                    <TrendingUp size={18} />
+                  </span>
+                  <div>
+                    <strong>Aylık net kâr</strong>
+                    <small>Gelir eksi gider; tüm zamanların bakiyesi.</small>
+                  </div>
+                </li>
+              </ul>
+              <Link to="/app/kasa" className="text-link">
+                Kasa defterini aç
+                <ArrowRight size={15} />
+              </Link>
+            </div>
+
+            <div className="cash-visual">
+              <div className="cash-card">
+                <div className="cash-card-head">
+                  <span>KASA · EKİM 2026</span>
+                  <span className="cash-live">
+                    <i />
+                    CANLI
+                  </span>
+                </div>
+                <span className="cash-label">BU AYIN NET KÂRI</span>
+                <strong className="cash-total">+₺17.040</strong>
+                <div className="cash-meters">
+                  <div>
+                    <span>Gelir</span>
+                    <div>
+                      <i className="cash-fill cash-fill--income" style={{ width: '100%' }} />
+                    </div>
+                    <strong>₺35.730</strong>
+                  </div>
+                  <div>
+                    <span>Gider</span>
+                    <div>
+                      <i className="cash-fill cash-fill--expense" style={{ width: '52%' }} />
+                    </div>
+                    <strong>₺18.690</strong>
+                  </div>
+                </div>
+                <div className="cash-lines">
+                  <div>
+                    <span>Gelir</span>
+                    <strong>₺35.730</strong>
+                  </div>
+                  <div>
+                    <span>Gider</span>
+                    <strong>−₺18.690</strong>
+                  </div>
+                  <div>
+                    <span>KDV ödenecek</span>
+                    <strong>₺2.818</strong>
+                  </div>
+                </div>
+                <div className="cash-card-foot">Örnek kasa özeti · tutarlar KDV dahil</div>
+              </div>
+              <div className="cash-sticker">
+                <span>RAF + KASA</span>
+                <strong>tek panel</strong>
+              </div>
             </div>
           </div>
         </section>

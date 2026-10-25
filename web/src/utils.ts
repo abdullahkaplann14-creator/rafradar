@@ -104,6 +104,32 @@ export function todayLong(): string {
   }).format(new Date());
 }
 
+export function currentMonth(date = new Date()): string {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+}
+
+export function shiftMonth(month: string, delta: number): string {
+  const [year, monthNumber] = month.split('-').map(Number);
+  const date = new Date(year, monthNumber - 1 + delta, 1);
+  return currentMonth(date);
+}
+
+export function monthLabel(month: string): string {
+  const [year, monthNumber] = month.split('-').map(Number);
+  const date = new Date(year, monthNumber - 1, 1);
+  return new Intl.DateTimeFormat('tr-TR', { month: 'long', year: 'numeric' }).format(date);
+}
+
+export function vatOf(amount: number, rate: number): number {
+  if (!rate) return 0;
+  return Math.round(((amount * rate) / (100 + rate)) * 100) / 100;
+}
+
+export const transactionTypeLabel: Record<'income' | 'expense', string> = {
+  income: 'Gelir',
+  expense: 'Gider',
+};
+
 export function plural(count: number, singular: string, pluralForm: string): string {
   return `${count} ${count === 1 ? singular : pluralForm}`;
 }
