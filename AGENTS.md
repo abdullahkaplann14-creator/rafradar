@@ -22,7 +22,7 @@ ettiği bir üründür. Tek aha akışı:
 npm install
 npm run dev        # api :4000 + web :5174
 npm run test:api   # API duman testleri (geçici DB)
-npm run demo       # 10 ürün + 8 kasa kaydı ekle (pano boşsa)
+npm run demo       # 10 ürün + 9 kasa kaydı ekle (pano boşsa)
 npm run reset      # tüm ürünleri ve kasa kayıtlarını sil
 npm run build      # web tip kontrolü + üretim derlemesi
 ```
@@ -36,7 +36,8 @@ npm run build      # web tip kontrolü + üretim derlemesi
    veya toast'a çevirir.
 5. Ürün doğrulaması: ad 2-80, miktar > 0, maliyet ≥ 0, gerçek takvim tarihi.
 6. Kasa doğrulaması: tutar > 0, açıklama 2-120, tür ve kategori uyumlu, KDV 0/1/10/20.
-   Tutarlar KDV dahildir; KDV payı `tutar × oran / (100 + oran)`.
+   Tutarlar KDV dahildir; KDV payı `tutar × oran / (100 + oran)`. Satılmadı işaretli
+   gelir ciroya ve KDV'ye girmez; yalnız satılan gelir hesaba katılır.
 7. Boş/hatalı girdi ürünü çökertmez. `400`, `404`, `500` ayrımı korunur.
 8. Kapsam: `docs/PLAN.md` içindeki **YAPMAYACAKLARIM** listesi bağlayıcıdır.
 9. Her yeşil adımda anlamlı commit: `feat:`, `fix:`, `test:`, `docs:`.

@@ -35,13 +35,13 @@ npm run dev
 - API: **http://localhost:4000/api/health**
 
 İlk açılışta pano **boştur**; boş ekrandaki “İlk ürünü ekle” veya “Örnek 10 ürünle
-keşfet” ile başlanır. Örnek yükleme aynı zamanda 8 kasa kaydı ekler. Veri
+keşfet” ile başlanır. Örnek yükleme aynı zamanda 9 kasa kaydı ekler. Veri
 `api/data/rafradar.db` dosyasında kalıcıdır.
 
 ### Diğer komutlar
 
 ```bash
-npm run demo       # 10 ürün + 8 kasa kaydı ekle (pano boşsa)
+npm run demo       # 10 ürün + 9 kasa kaydı ekle (pano boşsa)
 npm run reset      # tüm ürünleri ve kasa kayıtlarını sil
 npm run test:api   # API duman testleri (geçici DB)
 npm run build      # tip kontrolü + üretim derlemesi
@@ -74,14 +74,17 @@ alınmıyor, bu sayfada açıkça belirtiliyor.
 
 - **Gelir / gider kaydı:** tutar, tarih, açıklama, kategori, ödeme yöntemi, belge no,
   KDV oranı, not.
+- **Satış durumu:** gelir kaydını **Satıldı** veya **Satılmadı** işaretle. Satılmadı
+  olan ciroya ve KDV’ye girmez; “Bekleyen” sekmesinde durur, teslimde satıldıya çevrilir.
 - **Aylık özet:** gelir, gider, net kâr, hesaplanan/indirilecek KDV ve ödenecek KDV.
 - **Ay seçici:** önceki/sonraki ay ve “Bu ay”.
 - **Kategori, tür ve metin filtresi.**
 - **Düzenleme ve onaylı silme.**
-- **CSV dışa aktarma** (seçili ay).
+- **CSV dışa aktarma** (seçili ay, satış durumu dahil).
 - **Kalıcılık:** tüm kayıtlar aynı SQLite dosyasında; yenileme ve kapat-aç testi geçti.
 - **KDV mantığı:** tutarlar KDV dahildir; KDV payı `tutar × oran / (100 + oran)` ile
-  hesaplanır. Bu modül e-fatura/beyan yerine geçmez.
+  hesaplanır. Yalnız **satıldı** işaretli gelir KDV’ye girer. Bu modül e-fatura/beyan
+  yerine geçmez.
 
 ## Teknoloji seçimleri ve gerekçeleri
 
@@ -156,7 +159,7 @@ Hatalar: `{ "error": { "code": "VALIDATION_ERROR", "message": "...", "field": ".
 
 - `items`: ürün, kategori, miktar/birim, birim maliyet, son tarih, not, durum.
 - `transactions`: tür (gelir/gider), kategori, tutar, tarih, açıklama, ödeme yöntemi,
-  belge no, KDV oranı, not.
+  belge no, KDV oranı, **satış durumu (sold)**, not.
 - Ürün durumu: `active | rescued | wasted`. Kasa türü: `income | expense`.
 - Tüm tutarlar TL ve KDV dahildir.
 
@@ -177,11 +180,11 @@ e-posta servisi eklenecekse anahtar yalnız `.env`’e konur (bu demoda kullanı
 
 ## Doğrulama
 
-- `npm run test:api` → **12/12** (ürün + kasa + KDV + demo + CSV).
+- `npm run test:api` → **13/13** (ürün + kasa + KDV + satış durumu + demo + CSV).
 - HTTP sözleşme → **17/17** ürün; **12/12** kasa (aylık özet, KDV, ay/tür filtresi,
-  doğrulama, CSV, 404).
+  doğrulama, CSV, 404); **6/6** satış durumu.
 - Tarayıcı ürün akışı → **13/13**; demo/fire/mobil/hata → **5/5**.
-- Tarayıcı kasa akışı → **11/11** (boş form, gelir/gider, KDV, arama, düzenleme,
+- Tarayıcı kasa akışı → **11/11**; satış durumu → **6/6** (boş form, gelir/gider, KDV, arama, düzenleme,
   silme, yenileme, dashboard özeti, mobil).
 - SQLite kapat-aç → ürün, kasa ve toplamlar yerinde.
 - `npm run build` → başarılı.
@@ -197,7 +200,8 @@ e-posta servisi eklenecekse anahtar yalnız `.env`’e konur (bu demoda kullanı
 4. **Doğrulamayı önce kurdum.** Boş ad, negatif miktar, geçersiz tarih, yanlış kategori,
    sıfır tutar ve bozuk JSON için testler yazdım; UI bunları alan uyarısına çeviriyor.
 5. **Ürünü yabancı gibi kullandım.** Puppeteer ile sıfır veri, hatalı form, kaydet,
-   yenile, kurtar, fire, kasa ekle/düzenle/sil, ay filtresi ve mobil senaryolarını koşturdum.
+   yenile, kurtar, fire, kasa ekle/düzenle/sil, satış durumu, ay filtresi ve mobil
+   senaryolarını koşturdum.
 6. **Görsel geri bildirimle düzelttim.** Footer sıkışması, SSS başlığı, kasa kartındaki
    dekorun değerleri örtmesi ve mobilde gizlenen “Yeni işlem” butonunu ekran görüntüsüne
    bakarak düzelttim.

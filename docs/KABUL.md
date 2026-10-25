@@ -14,9 +14,9 @@
 ## B · Çalışan ürün (25)
 
 - [x] **C1** (10p) Uçtan uca akış: ürün ekle → dashboard → kurtar/fire; kasaya gelir/gider
-  → aylık özet → KDV → kalıcı sonuç.
+  → satış durumu → aylık özet → KDV → kalıcı sonuç.
 - [x] **C2** (6p) SQLite kalıcılığı; sayfa yenileme ve DB kapat-aç testi ürün + kasa için geçti.
-- [x] **C3** (4p) Sıfır veri: boş durum + “İlk ürünü ekle” + tek tık demo (10 ürün + 8 kasa).
+- [x] **C3** (4p) Sıfır veri: boş durum + “İlk ürünü ekle” + tek tık demo (10 ürün + 9 kasa).
 - [x] **C4** (5p) Boş ad, negatif miktar, geçersiz tarih, yanlış kategori, sıfır tutar →
   alan uyarısı; ürün çökmüyor.
 
@@ -54,18 +54,22 @@
 
 | Test | Sonuç |
 | --- | --- |
-| `npm run test:api` | 12/12 |
+| `npm run test:api` | 13/13 |
 | HTTP ürün sözleşmesi | 17/17 |
 | HTTP kasa sözleşmesi (gelir/gider/KDV/ay/CSV) | 12/12 |
+| HTTP satış durumu (satıldı/satılmadı/CSV) | 6/6 |
 | Tarayıcı ürün akışı | 13/13 |
 | Tarayıcı demo/fire/mobil/hata | 5/5 |
 | Tarayıcı kasa akışı | 11/11 |
+| Tarayıcı satış durumu | 6/6 |
 | SQLite kapat-aç (ürün + kasa) | geçti |
 | `npm run build` | geçti |
 
 ## Kasa modülü son kontrol
 
 - [x] Gelir/gider ekleme, düzenleme, onaylı silme.
+- [x] **Satıldı / Satılmadı** işareti; satılmayan ciro ve KDV dışında, bekleyen
+  sekmesinde; satıldıya çevrilince özet güncelleniyor.
 - [x] Aylık gelir, gider, net kâr, KDV özeti; tüm zamanların neti.
 - [x] Ay seçici + “Bu ay”; tür, kategori ve metin filtresi.
 - [x] KDV oranı 0/1/10/20; tutarlar KDV dahil.

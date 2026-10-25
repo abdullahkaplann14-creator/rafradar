@@ -21,7 +21,8 @@ hafta riskte olan ürünleri ve TL karşılığını gösteriyor. Mesela şu an 
 riskte. İndirimle kurtardıysan ‘Kurtardım’a, çöpe gittiyse ‘Fire’ye basıyorsun.
 
 Aynı panelde kasa var: gün sonu satışı ve süt alımını giriyorsun. Gelir, gider, net kâr
-ve ödenecek KDV anında güncelleniyor. Yani raf ve kasa aynı ekranda.”
+ve ödenecek KDV anında güncelleniyor. Bir satış henüz gerçekleşmediyse ‘Satılmadı’
+işaretliyorsun; ciroya ve KDV’ye girmiyor, bekleyen satış olarak duruyor.”
 
 ## 55-75 sn · Değer
 
@@ -43,7 +44,8 @@ kurtaran bir kafe için ilk haftada kendini çıkarır.”
 
 **“Kasa tam muhasebe mi?”**
 “Hayır. E-fatura veya beyanname değil. Günlük gelir-gideri, ödeme yöntemini ve KDV
-özetini gösteriyor. Küçük kafenin ‘bugün ne oldu?’ sorusuna cevap veriyor.”
+özetini gösteriyor. Satılmayan satışı ayrı tutuyor; KDV yalnız gerçekleşen satıştan
+çıkıyor. Küçük kafenin ‘bugün ne oldu?’ sorusuna cevap veriyor.”
 
 **“Ajana nerede müdahale ettin?”**
 “Fikri, hedef kitleyi ve fiyatı ben seçtim; kapsamı YAPMAYACAKLARIM listesiyle kestim.

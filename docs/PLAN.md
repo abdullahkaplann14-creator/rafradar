@@ -25,11 +25,11 @@
 - Kurtarıldı / Fire / Rafa geri al.
 - Dashboard: riskteki TL, bu hafta biten, kurtarılan, fire, kurtarma oranı.
 - **Kasa:** gelir/gider CRUD, tutar, tarih, açıklama, kategori, ödeme yöntemi, belge no,
-  KDV oranı, not.
-- **Aylık kasa özeti:** gelir, gider, net kâr, hesaplanan/indirilecek/ödenecek KDV,
-  tüm zamanların neti.
+  KDV oranı, **satıldı/satılmadı durumu**, not.
+- **Aylık kasa özeti:** gelir (yalnız satılan), bekleyen satış, gider, net kâr,
+  hesaplanan/indirilecek/ödenecek KDV, tüm zamanların neti.
 - Ay seçici, tür/kategori/metin filtresi, kasa CSV.
-- Boş durum + tek tıkla 10 ürün + 8 kasa kaydı; hata/yükleniyor durumları.
+- Boş durum + tek tıkla 10 ürün + 9 kasa kaydı; hata/yükleniyor durumları.
 - Satış sayfası + **raf + kasa** bölümü + fiyatlandırma + SSS + gerçek ürün ekran görüntüsü.
 - Mobil kullanılabilirlik, klavye (`N`, `/`, `Esc`).
 
@@ -75,6 +75,7 @@ CREATE TABLE transactions (
   payment_method TEXT NOT NULL,        -- Nakit | Kart | Havale
   document_no    TEXT,
   vat_rate       INTEGER NOT NULL DEFAULT 0,
+  sold           INTEGER NOT NULL DEFAULT 1,  -- yalnız gelirde: 1 satıldı, 0 bekliyor
   note           TEXT,
   created_at     TEXT NOT NULL,
   updated_at     TEXT NOT NULL
@@ -82,8 +83,9 @@ CREATE TABLE transactions (
 ```
 
 - Ürün riski: aktif ve son tarihi ≤ 7 gün (geçmiş dahil) olan ürünlerin toplam değeri.
-- Kasa neti: aylık gelir − aylık gider.
-- KDV payı: `tutar × oran / (100 + oran)`; gelir KDV'si − gider KDV'si = ödenecek.
+- Kasa neti: satılan ay geliri − aylık gider.
+- KDV payı: `tutar × oran / (100 + oran)`; yalnız satılan gelirin KDV'si − gider KDV'si =
+  ödenecek. Satılmadı işaretli gelir “bekleyen satış” olarak ayrı gösterilir.
 - Tüm tutarlar KDV dahildir. İlk açılış boş; örnek veri yalnız kullanıcı isterse.
 
 ## 4. Uç noktalar
