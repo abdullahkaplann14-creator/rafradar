@@ -67,6 +67,7 @@ export type Transaction = {
   paymentMethod: PaymentMethod;
   documentNo: string | null;
   vatRate: VatRate;
+  sold: boolean;
   note: string | null;
   createdAt: string;
   updatedAt: string;
@@ -81,16 +82,19 @@ export type TransactionInput = {
   paymentMethod: PaymentMethod;
   documentNo?: string | null;
   vatRate: VatRate;
+  sold?: boolean;
   note?: string | null;
 };
 
 export type AccountingSummary = {
   month: string;
   incomeTotal: number;
+  pendingIncomeTotal: number;
   expenseTotal: number;
   net: number;
   transactionCount: number;
   incomeCount: number;
+  pendingIncomeCount: number;
   expenseCount: number;
   vatCollected: number;
   vatDeductible: number;
@@ -116,6 +120,8 @@ export type Dashboard = {
   accounting: {
     month: string;
     incomeTotal: number;
+    pendingIncomeTotal: number;
+    pendingIncomeCount: number;
     expenseTotal: number;
     net: number;
     transactionCount: number;

@@ -68,6 +68,7 @@ export function TransactionModal({
   );
   const [documentNo, setDocumentNo] = useState(transaction?.documentNo ?? '');
   const [vatRate, setVatRate] = useState<VatRate>(transaction?.vatRate ?? 0);
+  const [sold, setSold] = useState(transaction?.sold ?? true);
   const [note, setNote] = useState(transaction?.note ?? '');
   const [errors, setErrors] = useState<FieldErrors>({});
   const [saving, setSaving] = useState(false);
@@ -98,6 +99,7 @@ export function TransactionModal({
     if (next === type) return;
     setType(next);
     setCategory(next === 'income' ? INCOME_CATEGORIES[0] : EXPENSE_CATEGORIES[0]);
+    if (next === 'expense') setSold(true);
   };
 
   const validate = () => {
@@ -128,6 +130,7 @@ export function TransactionModal({
       paymentMethod,
       documentNo: documentNo.trim() || null,
       vatRate,
+      sold: type === 'income' ? sold : true,
       note: note.trim() || null,
     };
 
@@ -200,6 +203,31 @@ export function TransactionModal({
               Gider
             </button>
           </div>
+
+          {type === 'income' ? (
+            <div className="sale-state">
+              <div className="sale-state-copy">
+                <strong>Bu satış gerçekleşti mi?</strong>
+                <span>Satılmadıysa ciroya ve KDV’ye eklenmez; bekleyen satış olarak durur.</span>
+              </div>
+              <div className="sale-toggle" role="group" aria-label="Satış durumu">
+                <button
+                  type="button"
+                  className={sold ? 'is-active' : ''}
+                  onClick={() => setSold(true)}
+                >
+                  Satıldı
+                </button>
+                <button
+                  type="button"
+                  className={!sold ? 'is-active is-pending' : ''}
+                  onClick={() => setSold(false)}
+                >
+                  Satılmadı
+                </button>
+              </div>
+            </div>
+          ) : null}
 
           <div className="form-grid">
             <div className="field">
@@ -332,10 +360,16 @@ export function TransactionModal({
             </div>
             <div>
               <span>İçindeki KDV</span>
-              <strong>{formatMoney(vatAmount)}</strong>
+              <strong>
+                {type === 'income' && !sold ? '—' : formatMoney(vatAmount)}
+              </strong>
             </div>
-            <span className={`txn-preview-badge txn-preview-badge--${type}`}>
-              {type === 'income' ? 'Gelir' : 'Gider'}
+            <span
+              className={`txn-preview-badge txn-preview-badge--${
+                type === 'expense' ? 'expense' : sold ? 'income' : 'pending'
+              }`}
+            >
+              {type === 'expense' ? 'Gider' : sold ? 'Satıldı' : 'Bekleyen satış'}
             </span>
           </div>
 

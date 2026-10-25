@@ -2687,6 +2687,162 @@ tr:focus-visible {
   color: var(--tomato-dark);
 }
 
+.txn-preview-badge--pending {
+  background: #fbf3df;
+  color: #8a6a25;
+}
+
+.sale-state {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--cream-2);
+}
+
+.sale-state-copy strong {
+  display: block;
+  font-size: 10.5px;
+  font-weight: 800;
+}
+
+.sale-state-copy span {
+  display: block;
+  margin-top: 1px;
+  font-size: 8.5px;
+  line-height: 1.45;
+  color: var(--muted-2);
+}
+
+.sale-toggle {
+  display: flex;
+  gap: 2px;
+  flex: 0 0 auto;
+  padding: 3px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: var(--cream);
+}
+
+.sale-toggle button {
+  height: 27px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 8.5px;
+  font-weight: 800;
+}
+
+.sale-toggle button.is-active {
+  background: var(--paper);
+  color: var(--leaf);
+  box-shadow: 0 2px 7px rgba(38, 45, 38, 0.08);
+}
+
+.sale-toggle button.is-active.is-pending {
+  background: #fbf3df;
+  color: #8a6a25;
+}
+
+.pending-sales {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+  padding: 11px 13px;
+  border: 1px solid #eadbb8;
+  border-radius: 11px;
+  background: #fbf3df;
+}
+
+.pending-sales-icon {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  flex: 0 0 auto;
+  border-radius: 8px;
+  background: rgba(255, 253, 248, 0.7);
+  color: #a87a27;
+}
+
+.pending-sales strong {
+  display: block;
+  font-size: 10.5px;
+  font-weight: 800;
+  color: #6d5422;
+}
+
+.pending-sales span:not(.pending-sales-icon) {
+  display: block;
+  margin-top: 1px;
+  font-size: 8.5px;
+  color: #8a6a25;
+}
+
+.pending-sales .text-button {
+  margin-left: auto;
+  flex: 0 0 auto;
+  color: #8a6a25;
+}
+
+.sale-flag {
+  display: inline-flex;
+  align-items: center;
+  height: 16px;
+  padding: 0 5px;
+  border-radius: 4px;
+  font-size: 6.5px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.sale-flag--sold {
+  background: #e8f2e9;
+  color: #2c714c;
+}
+
+.sale-flag--pending {
+  background: #fbf0d4;
+  color: #946a18;
+}
+
+.txn-amount-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+
+.txn-amount--pending {
+  color: #a87a27;
+}
+
+.cashflow-pending {
+  display: block;
+  margin-top: 8px;
+  font-size: 8.5px;
+  font-weight: 600;
+  color: #8a6a25;
+}
+
+.cash-pending {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: #fbf3df;
+  color: #8a6a25;
+  font-size: 6.5px;
+  font-weight: 800;
+}
+
 /* ============================== PANEL KOLONLARI ============================== */
 
 .pd-columns {
@@ -4992,6 +5148,33 @@ tr:focus-visible {
 
   .txn-preview-badge {
     margin-left: 0;
+  }
+
+  .sale-state {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .sale-toggle {
+    width: 100%;
+  }
+
+  .sale-toggle button {
+    flex: 1;
+  }
+
+  .pending-sales {
+    flex-wrap: wrap;
+  }
+
+  .pending-sales .text-button {
+    margin-left: 0;
+  }
+
+  .cash-pending {
+    margin-left: 0;
+    margin-top: 4px;
   }
 
   .summary-card {

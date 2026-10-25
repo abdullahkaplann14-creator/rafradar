@@ -458,6 +458,12 @@ export function ProductPage() {
                   Kasa defterini aç
                   <ArrowRight size={14} />
                 </Link>
+                {data.accounting.pendingIncomeTotal > 0 ? (
+                  <span className="cashflow-pending">
+                    {formatMoney(data.accounting.pendingIncomeTotal)} bekleyen satış ·
+                    ciro/KDV dışında
+                  </span>
+                ) : null}
               </div>
               <div className="cashflow-stats">
                 <div>

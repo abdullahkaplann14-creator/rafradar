@@ -46,7 +46,7 @@ const plans = [
       '1 şube',
       'Sınırsız ürün',
       '7 günlük risk paneli',
-      'Gelir-gider + KDV defteri',
+      'Gelir-gider + satış durumu + KDV defteri',
       'Tüm geçmiş',
       'CSV dışa aktarma',
       'Öncelikli destek',
@@ -94,7 +94,7 @@ const faqs = [
   },
   {
     q: 'Muhasebe programım var, neden burada kasa tutayım?',
-    a: 'RafRadar tam bir muhasebe programı ya da e-fatura çözümü değil. Günlük gelir-gideri, ödeme yöntemini ve KDV özetini rafın yanında gösterir. Ay sonu net kârı görmek ve firenin gerçek etkisini anlamak için tasarlandı.',
+    a: 'RafRadar tam bir muhasebe programı ya da e-fatura çözümü değil. Günlük gelir-gideri, ödeme yöntemini ve KDV özetini rafın yanında gösterir. Satılmadı işaretlediğiniz satış ciroya ve KDV’ye girmez; teslim edince “Satıldı”ya çevirirsiniz.',
   },
   {
     q: 'Tek başıma çalışıyorum, bana fazla mı?',
@@ -489,6 +489,15 @@ export function LandingPage() {
                     <small>Gelir eksi gider; tüm zamanların bakiyesi.</small>
                   </div>
                 </li>
+                <li>
+                  <span>
+                    <CheckCircle2 size={18} />
+                  </span>
+                  <div>
+                    <strong>Satıldı / satılmadı</strong>
+                    <small>Satılmayan satış ciroya ve KDV’ye girmez.</small>
+                  </div>
+                </li>
               </ul>
               <Link to="/app/kasa" className="text-link">
                 Kasa defterini aç
@@ -537,7 +546,10 @@ export function LandingPage() {
                     <strong>₺2.818</strong>
                   </div>
                 </div>
-                <div className="cash-card-foot">Örnek kasa özeti · tutarlar KDV dahil</div>
+                <div className="cash-card-foot">
+                  Örnek kasa özeti · tutarlar KDV dahil
+                  <span className="cash-pending">₺3.200 bekleyen satış</span>
+                </div>
               </div>
               <div className="cash-sticker">
                 <span>RAF + KASA</span>

@@ -38,7 +38,7 @@ import {
   vatOf,
 } from '../utils';
 
-type TypeFilter = 'all' | TransactionType;
+type TypeFilter = 'all' | 'income' | 'expense' | 'pending';
 type ModalState = { type: 'create' } | { type: 'edit'; id: string } | null;
 
 export function KasaPage() {
@@ -107,7 +107,7 @@ export function KasaPage() {
 
   const categoryOptions = useMemo(() => {
     if (!data) return [] as string[];
-    if (typeFilter === 'income') return [...data.categories.income];
+    if (typeFilter === 'income' || typeFilter === 'pending') return [...data.categories.income];
     if (typeFilter === 'expense') return [...data.categories.expense];
     return [...new Set([...data.categories.income, ...data.categories.expense])];
   }, [data, typeFilter]);
@@ -115,7 +115,11 @@ export function KasaPage() {
   const filtered = useMemo(() => {
     if (!data) return [] as Transaction[];
     let transactions = data.transactions;
-    if (typeFilter !== 'all') {
+    if (typeFilter === 'pending') {
+      transactions = transactions.filter(
+        (transaction) => transaction.type === 'income' && !transaction.sold,
+      );
+    } else if (typeFilter !== 'all') {
       transactions = transactions.filter((transaction) => transaction.type === typeFilter);
     }
     if (categoryFilter !== 'all') {
@@ -270,7 +274,12 @@ export function KasaPage() {
                 </span>
                 <span className="cash-summary-label">Gelir</span>
                 <strong>{formatMoney(summary.incomeTotal)}</strong>
-                <small>{summary.incomeCount} gelir kaydı</small>
+                <small>
+                  {summary.incomeCount} satış kaydı
+                  {summary.pendingIncomeCount > 0
+                    ? ` · ${summary.pendingIncomeCount} bekliyor`
+                    : ''}
+                </small>
               </article>
               <article className="cash-summary-card cash-summary-card--expense">
                 <span className="cash-summary-icon">
@@ -302,10 +311,33 @@ export function KasaPage() {
                 <span className="cash-summary-label">{vatLabel}</span>
                 <strong>{formatMoney(vatValue)}</strong>
                 <small>
-                  {formatMoney(summary.vatCollected)} KDV − {formatMoney(summary.vatDeductible)} indirim
+                  Satılan KDV {formatMoney(summary.vatCollected)} − {formatMoney(summary.vatDeductible)} indirim
                 </small>
               </article>
             </div>
+
+            {summary.pendingIncomeTotal > 0 ? (
+              <div className="pending-sales">
+                <span className="pending-sales-icon">
+                  <Receipt size={17} />
+                </span>
+                <div>
+                  <strong>{formatMoney(summary.pendingIncomeTotal)} bekleyen satış</strong>
+                  <span>
+                    {summary.pendingIncomeCount} kayıt satılmadı olarak işaretli; ciroya ve
+                    KDV’ye dahil edilmedi.
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  className="text-button"
+                  onClick={() => setTypeFilter('pending')}
+                >
+                  Bekleyenleri gör
+                  <ArrowRight size={13} />
+                </button>
+              </div>
+            ) : null}
 
             <section className="panel inventory-panel kasa-panel">
               <header className="inventory-head">
@@ -360,6 +392,7 @@ export function KasaPage() {
                   [
                     { key: 'all', label: 'Tümü', count: summary.transactionCount },
                     { key: 'income', label: 'Gelir', count: summary.incomeCount },
+                    { key: 'pending', label: 'Bekleyen', count: summary.pendingIncomeCount },
                     { key: 'expense', label: 'Gider', count: summary.expenseCount },
                   ] as { key: TypeFilter; label: string; count: number }[]
                 ).map((tab) => (
@@ -460,16 +493,39 @@ export function KasaPage() {
                               </span>
                             </td>
                             <td data-label="Ödeme">{transaction.paymentMethod}</td>
-                            <td
-                              data-label="Tutar"
-                              className={`txn-amount txn-amount--${transaction.type}`}
-                            >
-                              {transaction.type === 'income' ? '+' : '−'}
-                              {formatMoney(transaction.amount)}
+                            <td data-label="Tutar" className="txn-amount-cell">
+                              <strong
+                                className={`txn-amount txn-amount--${transaction.type} ${
+                                  transaction.type === 'income' && !transaction.sold
+                                    ? 'txn-amount--pending'
+                                    : ''
+                                }`}
+                              >
+                                {transaction.type === 'income' ? '+' : '−'}
+                                {formatMoney(transaction.amount)}
+                              </strong>
+                              {transaction.type === 'income' ? (
+                                <span
+                                  className={`sale-flag sale-flag--${
+                                    transaction.sold ? 'sold' : 'pending'
+                                  }`}
+                                >
+                                  {transaction.sold ? 'Satıldı' : 'Satılmadı'}
+                                </span>
+                              ) : null}
                             </td>
                             <td data-label="KDV" className="txn-vat-cell">
-                              {transaction.vatRate ? `%${transaction.vatRate}` : '—'}
-                              {transaction.vatRate ? <small>{formatMoney(vat)}</small> : null}
+                              {transaction.type === 'income' && !transaction.sold ? (
+                                <>
+                                  —
+                                  <small>satılmadı</small>
+                                </>
+                              ) : (
+                                <>
+                                  {transaction.vatRate ? `%${transaction.vatRate}` : '—'}
+                                  {transaction.vatRate ? <small>{formatMoney(vat)}</small> : null}
+                                </>
+                              )}
                             </td>
                             <td className="row-action">
                               <button
