@@ -8,6 +8,10 @@ Son kullanma tarihini, fireyi ve günlük gelir-gideri tek panelde görünür k�
 > 3-15 kişilik bağımsız kafeler ve pastaneler için. Pro plan **299 TL/ay**.
 > 14 gün ücretsiz, kredi kartı yok.
 
+**Canlı demo:** https://rafradar.surge.sh  
+Surge sürümü tamamen statiktir; veriler tarayıcıda (localStorage) kalıcıdır. Gerçek
+Express + SQLite sürümü `npm run dev` ile çalışır.
+
 ## Neden var?
 
 Küçük kafelerde iki sessiz kayıp vardır: **raf** ve **kasa**. Son kullanma tarihi
@@ -45,9 +49,18 @@ npm run demo       # 10 ürün + 9 kasa kaydı ekle (pano boşsa)
 npm run reset      # tüm ürünleri ve kasa kayıtlarını sil
 npm run test:api   # API duman testleri (geçici DB)
 npm run build      # tip kontrolü + üretim derlemesi
+npm run build:static # Surge için tarayıcı içi demo derlemesi
+npm run deploy:surge # build:static + rafradar.surge.sh
 ```
 
 Tek tek çalıştırma: `npm run dev:api`, `npm run dev:web`.
+
+### Canlı demo (Surge)
+
+[rafradar.surge.sh](https://rafradar.surge.sh) statik bir demodur: Express/SQLite yerine
+tarayıcı içi `localStorage` kullanır. Bu yüzden Sunucu/API olmadan çalışır; veriler
+yalnız o tarayıcıda kalıcıdır. Panelde `DEMO` etiketi görünür. Gerçek, sunucu taraflı
+sürüm için kökte `npm run dev` kullanılır.
 
 ## Ürün
 
@@ -184,10 +197,11 @@ e-posta servisi eklenecekse anahtar yalnız `.env`’e konur (bu demoda kullanı
 - HTTP sözleşme → **17/17** ürün; **12/12** kasa (aylık özet, KDV, ay/tür filtresi,
   doğrulama, CSV, 404); **6/6** satış durumu.
 - Tarayıcı ürün akışı → **13/13**; demo/fire/mobil/hata → **5/5**.
-- Tarayıcı kasa akışı → **11/11**; satış durumu → **6/6** (boş form, gelir/gider, KDV, arama, düzenleme,
-  silme, yenileme, dashboard özeti, mobil).
+- Tarayıcı kasa akışı → **11/11**; satış durumu → **6/6**.
+- Statik Surge derlemesi → **9/9** (API çağrısı yok, localStorage kalıcı, doğrudan rotalar).
+- Canlı `rafradar.surge.sh` → **8/8** (satış sayfası, `/app`, `/app/kasa`, mobil, konsol).
 - SQLite kapat-aç → ürün, kasa ve toplamlar yerinde.
-- `npm run build` → başarılı.
+- `npm run build` ve `npm run build:static` → başarılı.
 
 ## Ajanı nasıl sürdüm?
 
@@ -215,6 +229,7 @@ e-posta servisi eklenecekse anahtar yalnız `.env`’e konur (bu demoda kullanı
 - Kasa modülü **tam muhasebe değil**: e-fatura, KDV beyanı, banka/POS entegrasyonu yok.
 - Çoklu şube ve barkod yok.
 - Demo verisi yalnız boş panoya yüklenir; `npm run reset` ile temizlenir.
+- Surge sürümü statiktir; API/SQLite yerine tarayıcı deposu kullanır.
 
 ## Lisans
 

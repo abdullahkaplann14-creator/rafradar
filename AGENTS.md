@@ -25,6 +25,8 @@ npm run test:api   # API duman testleri (geçici DB)
 npm run demo       # 10 ürün + 9 kasa kaydı ekle (pano boşsa)
 npm run reset      # tüm ürünleri ve kasa kayıtlarını sil
 npm run build      # web tip kontrolü + üretim derlemesi
+npm run build:static # Surge statik demo (localStorage, API'siz)
+npm run deploy:surge # build:static + rafradar.surge.sh
 ```
 
 ## Değişmez kurallar
@@ -43,3 +45,5 @@ npm run build      # web tip kontrolü + üretim derlemesi
 9. Her yeşil adımda anlamlı commit: `feat:`, `fix:`, `test:`, `docs:`.
 10. Test edilmeyen özellik "bitti" sayılmaz.
 11. Satış sayfası metni müşteri dilindedir; teknoloji jargonu kullanılmaz.
+12. `build:static` modunda arayüz `/api` çağırmaz; tüm veri `localStorage` üzerinden
+    çalışır. Gerçek API sürümü bundan etkilenmez.
