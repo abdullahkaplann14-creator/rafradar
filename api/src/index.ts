@@ -3,21 +3,37 @@ import cors from 'cors';
 import { z } from 'zod';
 import {
   CATEGORIES,
+  EXPENSE_CATEGORIES,
+  INCOME_CATEGORIES,
+  PAYMENT_METHODS,
   UNITS,
+  VAT_RATES,
   createItem,
+  createTransaction,
+  currentMonth,
   deleteItem,
+  deleteTransaction,
+  getAccounting,
   getDashboard,
   getAllItems,
+  getAllTransactions,
   getItem,
+  getTransaction,
   itemsToCsv,
   loadDemo,
   reopenItem,
   resolveItem,
+  transactionsToCsv,
   updateItem,
+  updateTransaction,
   type Category,
   type ItemInput,
   type ItemStatus,
+  type PaymentMethod,
+  type TransactionInput,
+  type TransactionType,
   type Unit,
+  type VatRate,
 } from './db.js';
 import { API_PORT } from './env.js';
 
@@ -73,6 +89,47 @@ const itemSchema = z.object({
 
 const patchSchema = itemSchema.partial();
 
+const monthSchema = z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/, 'Ay YYYY-AA biçiminde olmalı');
+
+const transactionSchema = z.object({
+  type: z.enum(['income', 'expense'], {
+    required_error: 'İşlem türü zorunlu',
+    invalid_type_error: 'İşlem türü gelir veya gider olmalı',
+  }),
+  category: z
+    .string({ required_error: 'Kategori zorunlu' })
+    .trim()
+    .min(1, 'Kategori zorunlu')
+    .max(40, 'Kategori çok uzun'),
+  amount: z
+    .number({ required_error: 'Tutar zorunlu', invalid_type_error: 'Tutar sayı olmalı' })
+    .finite()
+    .positive('Tutar 0’dan büyük olmalı')
+    .max(10_000_000, 'Tutar çok büyük'),
+  date: z
+    .string({ required_error: 'Tarih zorunlu' })
+    .regex(/^\d{4}-\d{2}-\d{2}$/, 'Geçerli bir tarih seç')
+    .refine(isValidDate, 'Takvimde olmayan bir tarih girdin'),
+  description: z
+    .string({ required_error: 'Açıklama zorunlu' })
+    .trim()
+    .min(2, 'Açıklama en az 2 karakter olmalı')
+    .max(120, 'Açıklama en fazla 120 karakter olabilir'),
+  paymentMethod: z.enum([...PAYMENT_METHODS] as [PaymentMethod, ...PaymentMethod[]]),
+  documentNo: z.string().trim().max(40, 'Belge no çok uzun').optional().nullable(),
+  vatRate: z
+    .number()
+    .int()
+    .refine((value) => (VAT_RATES as readonly number[]).includes(value), 'Geçerli KDV oranı seç')
+    .transform((value) => value as VatRate),
+  note: z.string().trim().max(300, 'Not en fazla 300 karakter olabilir').optional().nullable(),
+});
+
+const transactionPatchSchema = transactionSchema.partial();
+
+const categoryForType = (type: TransactionType): readonly string[] =>
+  type === 'income' ? INCOME_CATEGORIES : EXPENSE_CATEGORIES;
+
 const firstIssue = (error: z.ZodError) => error.issues[0];
 
 app.get('/api/health', (_req, res) => {
@@ -81,6 +138,127 @@ app.get('/api/health', (_req, res) => {
 
 app.get('/api/dashboard', (_req, res) => {
   res.json(getDashboard());
+});
+
+// ——— Kasa / muhasebe ———
+app.get('/api/accounting', (req, res) => {
+  const month = typeof req.query.month === 'string' ? req.query.month : currentMonth();
+  if (!monthSchema.safeParse(month).success) {
+    return fail(res, 400, 'VALIDATION_ERROR', 'Ay YYYY-AA biçiminde olmalı', 'month');
+  }
+  res.json(getAccounting(month));
+});
+
+app.get('/api/transactions/export.csv', (req, res) => {
+  const month = typeof req.query.month === 'string' ? req.query.month : currentMonth();
+  if (!monthSchema.safeParse(month).success) {
+    return fail(res, 400, 'VALIDATION_ERROR', 'Ay YYYY-AA biçiminde olmalı', 'month');
+  }
+  res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+  res.setHeader('Content-Disposition', `attachment; filename="rafradar-kasa-${month}.csv"`);
+  res.send(transactionsToCsv(month));
+});
+
+app.get('/api/transactions', (req, res) => {
+  const month = typeof req.query.month === 'string' ? req.query.month : undefined;
+  if (month && !monthSchema.safeParse(month).success) {
+    return fail(res, 400, 'VALIDATION_ERROR', 'Ay YYYY-AA biçiminde olmalı', 'month');
+  }
+  const type = typeof req.query.type === 'string' ? req.query.type : 'all';
+  if (!['all', 'income', 'expense'].includes(type)) {
+    return fail(res, 400, 'VALIDATION_ERROR', 'Geçersiz işlem türü', 'type');
+  }
+  const q = typeof req.query.q === 'string' ? req.query.q : '';
+  const category = typeof req.query.category === 'string' ? req.query.category : 'all';
+  res.json({
+    transactions: getAllTransactions({
+      month,
+      type: type as TransactionType | 'all',
+      q,
+      category,
+    }),
+  });
+});
+
+app.get('/api/transactions/:id', (req, res) => {
+  const transaction = getTransaction(req.params.id);
+  if (!transaction) return fail(res, 404, 'NOT_FOUND', 'Kasa kaydı bulunamadı');
+  res.json(transaction);
+});
+
+app.post('/api/transactions', (req, res) => {
+  const parsed = transactionSchema.safeParse(req.body ?? {});
+  if (!parsed.success) {
+    const issue = firstIssue(parsed.error);
+    return fail(
+      res,
+      400,
+      'VALIDATION_ERROR',
+      issue?.message ?? 'Geçersiz kasa kaydı',
+      issue?.path?.join('.'),
+    );
+  }
+  if (!categoryForType(parsed.data.type).includes(parsed.data.category)) {
+    return fail(
+      res,
+      400,
+      'VALIDATION_ERROR',
+      parsed.data.type === 'income'
+        ? 'Gelir için geçerli bir kategori seç'
+        : 'Gider için geçerli bir kategori seç',
+      'category',
+    );
+  }
+  const transaction = createTransaction(parsed.data as TransactionInput);
+  res.status(201).json(transaction);
+});
+
+app.patch('/api/transactions/:id', (req, res) => {
+  const existing = getTransaction(req.params.id);
+  if (!existing) return fail(res, 404, 'NOT_FOUND', 'Kasa kaydı bulunamadı');
+
+  const parsed = transactionPatchSchema.safeParse(req.body ?? {});
+  if (!parsed.success) {
+    const issue = firstIssue(parsed.error);
+    return fail(
+      res,
+      400,
+      'VALIDATION_ERROR',
+      issue?.message ?? 'Geçersiz kasa kaydı',
+      issue?.path?.join('.'),
+    );
+  }
+  if (Object.keys(parsed.data).length === 0) {
+    return fail(res, 400, 'VALIDATION_ERROR', 'Değiştirilecek alan gönderilmedi');
+  }
+
+  const nextType = (parsed.data.type ?? existing.type) as TransactionType;
+  const nextCategory = parsed.data.category ?? existing.category;
+  if (!categoryForType(nextType).includes(nextCategory)) {
+    return fail(
+      res,
+      400,
+      'VALIDATION_ERROR',
+      nextType === 'income'
+        ? 'Gelir için geçerli bir kategori seç'
+        : 'Gider için geçerli bir kategori seç',
+      'category',
+    );
+  }
+
+  const transaction = updateTransaction(
+    req.params.id,
+    parsed.data as Partial<TransactionInput>,
+  );
+  if (!transaction) return fail(res, 404, 'NOT_FOUND', 'Kasa kaydı bulunamadı');
+  res.json(transaction);
+});
+
+app.delete('/api/transactions/:id', (req, res) => {
+  if (!deleteTransaction(req.params.id)) {
+    return fail(res, 404, 'NOT_FOUND', 'Kasa kaydı bulunamadı');
+  }
+  res.status(204).end();
 });
 
 app.get('/api/items/export.csv', (_req, res) => {

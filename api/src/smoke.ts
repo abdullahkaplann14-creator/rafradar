@@ -12,13 +12,20 @@ const {
   daysLeft,
   db,
   deleteItem,
+  deleteTransaction,
+  getAccounting,
   getDashboard,
   getItem,
+  getAllTransactions,
   itemsToCsv,
   loadDemo,
   reopenItem,
   resetItems,
+  resetTransactions,
   resolveItem,
+  createTransaction,
+  updateTransaction,
+  transactionsToCsv,
   updateItem,
 } = await import('./db.js');
 
@@ -103,17 +110,79 @@ try {
   assert.equal(getItem(feslegen.id), null);
   ok('ürün silme');
 
+  const income = createTransaction({
+    type: 'income',
+    category: 'Satış',
+    amount: 1000,
+    date: dateWithOffset(0),
+    description: 'Gün sonu satış',
+    paymentMethod: 'Kart',
+    documentNo: 'Z-1',
+    vatRate: 20,
+  });
+  createTransaction({
+    type: 'expense',
+    category: 'Tedarik',
+    amount: 500,
+    date: dateWithOffset(0),
+    description: 'Süt alımı',
+    paymentMethod: 'Havale',
+    vatRate: 10,
+  });
+  let accounting = getAccounting();
+  assert.equal(accounting.summary.incomeTotal, 1000);
+  assert.equal(accounting.summary.expenseTotal, 500);
+  assert.equal(accounting.summary.net, 500);
+  assert.equal(accounting.summary.vatCollected, 166.67);
+  assert.equal(accounting.summary.vatDeductible, 45.45);
+  assert.equal(accounting.summary.vatPayable, 121.22);
+  assert.equal(accounting.summary.transactionCount, 2);
+  assert.equal(getAllTransactions({ type: 'income' }).length, 1);
+  ok('kasa: gelir, gider, net ve KDV özeti');
+
+  updateTransaction(income.id, { amount: 1200, description: 'Gün sonu satış (düzeltme)' });
+  accounting = getAccounting();
+  assert.equal(accounting.summary.incomeTotal, 1200);
+  assert.equal(accounting.summary.net, 700);
+  assert.equal(accounting.summary.vatCollected, 200);
+  assert.equal(
+    accounting.transactions.find((transaction) => transaction.id === income.id)?.description,
+    'Gün sonu satış (düzeltme)',
+  );
+  ok('kasa: kısmi güncelleme ve yeniden hesaplama');
+
+  const expenseTx = accounting.transactions.find((transaction) => transaction.type === 'expense')!;
+  assert.equal(deleteTransaction(expenseTx.id), true);
+  assert.equal(getAccounting().summary.expenseTotal, 0);
+  const txCsv = transactionsToCsv();
+  assert.ok(txCsv.includes('Gün sonu satış'));
+  assert.ok(txCsv.includes('Gelir'));
+  ok('kasa: silme + CSV');
+
+  resetTransactions();
+  assert.equal(getAccounting().summary.transactionCount, 0);
+
   resetItems();
   assert.equal(getDashboard().items.length, 0);
   const demo = loadDemo();
   assert.equal(demo.inserted, 10);
+  assert.equal(demo.transactionsInserted, 8);
   assert.equal(loadDemo().skipped, true);
   dashboard = getDashboard();
   assert.equal(dashboard.items.length, 10);
   assert.ok(dashboard.summary.riskValue > 0);
   assert.ok(dashboard.summary.rescuedValue > 0);
   assert.ok(dashboard.summary.wastedValue > 0);
-  ok('boş panoya 10 örnek ürün, ikinci çağrı korunur');
+  assert.equal(dashboard.accounting.incomeTotal, 35730);
+  assert.equal(dashboard.accounting.expenseTotal, 18690);
+  assert.equal(dashboard.accounting.net, 17040);
+  assert.equal(dashboard.accounting.transactionCount, 8);
+  ok('boş panoya 10 örnek ürün + 8 kasa kaydı, ikinci çağrı korunur');
+
+  const demoAccounting = getAccounting();
+  assert.equal(demoAccounting.summary.transactionCount, 8);
+  assert.equal(demoAccounting.summary.net, 17040);
+  assert.ok(demoAccounting.summary.vatPayable > 0);
 
   const csv = itemsToCsv();
   assert.ok(csv.startsWith('\uFEFF'));

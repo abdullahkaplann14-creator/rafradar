@@ -1,5 +1,8 @@
-import { db, resetItems } from './db.js';
+import { db, resetItems, resetTransactions } from './db.js';
 
-const deleted = resetItems();
-console.log(`[reset] ${deleted} ürün silindi. Pano boş.`);
+const deletedItems = resetItems();
+const deletedTransactions = resetTransactions();
+console.log(
+  `[reset] ${deletedItems} ürün ve ${deletedTransactions} kasa kaydı silindi. Pano boş.`,
+);
 db.close();
