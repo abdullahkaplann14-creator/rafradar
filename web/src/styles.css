@@ -463,6 +463,20 @@ tr:focus-visible {
   letter-spacing: -0.05em;
 }
 
+.lp-hero h1 em {
+  display: inline;
+  padding: 0 0.035em;
+  background: linear-gradient(
+    180deg,
+    transparent 68%,
+    rgba(240, 199, 94, 0.42) 68%,
+    rgba(240, 199, 94, 0.42) 93%,
+    transparent 93%
+  );
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
 .lp-lede {
   max-width: 500px;
   margin-top: 24px;
@@ -507,6 +521,45 @@ tr:focus-visible {
   margin-top: 30px;
   font-size: 11px;
   color: var(--muted);
+}
+
+.lp-hero-facts {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  margin-top: 26px;
+  padding-top: 15px;
+  border-top: 1px solid var(--line);
+}
+
+.lp-hero-facts > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 0 20px;
+  border-left: 1px solid var(--line);
+}
+
+.lp-hero-facts > div:first-child {
+  padding-left: 0;
+  border-left: 0;
+}
+
+.lp-hero-facts strong {
+  font-family: var(--serif);
+  font-size: 19px;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  color: var(--forest);
+  line-height: 1;
+}
+
+.lp-hero-facts span {
+  font-size: 7.5px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted-2);
 }
 
 .audience-mark {
@@ -903,7 +956,27 @@ tr:focus-visible {
 }
 
 .product-shot-wrap {
+  position: relative;
   margin-top: 44px;
+}
+
+.shot-badge {
+  position: absolute;
+  z-index: 2;
+  top: -12px;
+  right: 26px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 27px;
+  padding: 0 11px;
+  border-radius: 999px;
+  background: var(--forest);
+  color: var(--cream);
+  font-size: 7px;
+  font-weight: 800;
+  letter-spacing: 0.15em;
+  box-shadow: 0 8px 20px rgba(20, 84, 61, 0.2);
 }
 
 .product-shot {
@@ -1239,12 +1312,40 @@ tr:focus-visible {
   background: var(--cream-2);
 }
 
+.pricing-trust {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 20px;
+}
+
+.pricing-trust span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 27px;
+  padding: 0 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(255, 253, 248, 0.65);
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: var(--muted);
+}
+
+.pricing-trust svg {
+  color: var(--leaf);
+}
+
 .pricing-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 16px;
   align-items: stretch;
-  margin-top: 52px;
+  margin-top: 30px;
 }
 
 .price-card {
@@ -1420,6 +1521,16 @@ tr:focus-visible {
 
 .faq-item {
   border-bottom: 1px solid var(--line);
+  border-radius: 10px;
+  transition: background 0.18s ease, box-shadow 0.18s ease, padding 0.18s ease;
+}
+
+.faq-item[open] {
+  margin: 4px 0;
+  padding: 0 14px;
+  border-bottom-color: transparent;
+  background: var(--paper);
+  box-shadow: 0 6px 24px rgba(38, 45, 38, 0.06);
 }
 
 .faq-item summary {
@@ -1736,6 +1847,12 @@ tr:focus-visible {
   border-radius: 16px;
   background: var(--paper);
   overflow: hidden;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.summary-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 30px rgba(38, 45, 38, 0.08);
 }
 
 .summary-card::after {
@@ -2385,7 +2502,7 @@ tr:focus-visible {
 .item-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 10.5px;
+  font-size: 11px;
 }
 
 .item-table th {
@@ -2437,7 +2554,7 @@ tr:focus-visible {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: 11.5px;
+  font-size: 12px;
   font-weight: 700;
   color: var(--ink);
 }

@@ -158,6 +158,20 @@ export function LandingPage() {
                 </span>
                 3-15 kişilik bağımsız kafeler ve pastaneler için
               </p>
+              <div className="lp-hero-facts" aria-label="Ürün gerçekleri">
+                <div>
+                  <strong>10 sn</strong>
+                  <span>ortalama kayıt</span>
+                </div>
+                <div>
+                  <strong>7 gün</strong>
+                  <span>risk penceresi</span>
+                </div>
+                <div>
+                  <strong>1 ekran</strong>
+                  <span>tüm raf</span>
+                </div>
+              </div>
             </div>
 
             <div className="lp-hero-visual" aria-label="RafRadar ürün ekranı önizlemesi">
@@ -288,6 +302,10 @@ export function LandingPage() {
             </div>
 
             <div className="product-shot-wrap">
+              <span className="shot-badge">
+                <span className="live-dot" />
+                GERÇEK EKRAN
+              </span>
               <div className="product-shot">
                 <div className="hero-frame-bar">
                   <i />
@@ -482,6 +500,21 @@ export function LandingPage() {
                 <em>net bir plan.</em>
               </h2>
               <p>14 gün ücretsiz. Kredi kartı istemiyoruz. İstediğin an iptal et.</p>
+            </div>
+
+            <div className="pricing-trust">
+              <span>
+                <Check size={13} />
+                14 gün ücretsiz
+              </span>
+              <span>
+                <Check size={13} />
+                Kredi kartı yok
+              </span>
+              <span>
+                <Check size={13} />
+                İstediğin an iptal
+              </span>
             </div>
 
             <div className="pricing-grid">

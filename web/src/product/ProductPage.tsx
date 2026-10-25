@@ -405,8 +405,8 @@ export function ProductPage() {
                 <section className="panel recovery-panel">
                   <div className="recovery-head">
                     <div>
-                      <p className="panel-kicker">KURTARMA ORANI</p>
-                      <h2>Raftan çıkanların</h2>
+                      <p className="panel-kicker">SONUÇ</p>
+                      <h2>Kurtarma oranı</h2>
                     </div>
                     <strong className="recovery-rate">{recoveryRate}%</strong>
                   </div>
