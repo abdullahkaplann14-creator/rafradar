@@ -17,7 +17,9 @@
     "demo": "npm run demo -w api",
     "reset": "npm run reset -w api",
     "test:api": "npm run test -w api",
-    "build": "npm run build -w web"
+    "build": "npm run build -w web",
+    "build:static": "npm run build:static -w web",
+    "deploy:surge": "npm run build:static && surge web/dist rafradar.surge.sh"
   },
   "devDependencies": {
     "concurrently": "^9.1.2"

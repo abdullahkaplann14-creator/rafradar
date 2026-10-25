@@ -18,7 +18,7 @@ import {
   Trash2,
   X,
 } from 'lucide-react';
-import { api, errorMessage } from '../api';
+import { api, errorMessage, isStaticMode } from '../api';
 import { useProductActions } from '../hooks/useProductActions';
 import { ProductTopbar } from '../components/ProductTopbar';
 import { Toasts, useToasts } from '../components/Toast';
@@ -162,6 +162,14 @@ export function ProductPage() {
     setModal(null);
   };
 
+  const handleDownload = async () => {
+    try {
+      await api.downloadItemsCsv();
+    } catch (error) {
+      notify('error', errorMessage(error));
+    }
+  };
+
   const handleUpdate = async (id: string, input: Partial<ItemInput>) => {
     const item = await actions.updateItem.mutateAsync({ id, input });
     notify('success', `${item.name} güncellendi.`);
@@ -245,14 +253,14 @@ export function ProductPage() {
                 </p>
               </div>
               <div className="pd-hero-actions">
-                <a
+                <button
+                  type="button"
                   className="button button--outline button--small"
-                  href={api.exportCsvUrl}
-                  download
+                  onClick={handleDownload}
                 >
                   <Download size={14} />
                   CSV indir
-                </a>
+                </button>
                 <button type="button" className="button button--primary" onClick={openCreate}>
                   <Plus size={16} />
                   Yeni ürün
@@ -675,7 +683,9 @@ export function ProductPage() {
       <footer className="pd-footer">
         <span>
           <span className="live-dot" />
-          Veriler bu sunucuda kalıcı · sayfayı yenile, kaybolmaz
+          {isStaticMode
+            ? 'Demo: veriler bu tarayıcıda kalıcı'
+            : 'Veriler bu sunucuda kalıcı · sayfayı yenile, kaybolmaz'}
         </span>
         <span>
           <Sparkles size={13} />

@@ -74,7 +74,7 @@ const plans = [
 const faqs = [
   {
     q: 'Verilerim nerede duruyor?',
-    a: 'RafRadar bu demoda verileri bağlı olduğu sunucudaki tek dosyalık bir veritabanında tutar. Sayfayı yenilesen de, sunucuyu kapatıp açsan da kaybolmaz. Gerçek kurulumda veriler kendi sunucunuzda kalır.',
+    a: 'Bu Surge demosunda veriler tarayıcınızda kalıcı olarak saklanır; sayfayı yenilesen de kaybolmaz. Gerçek kurulumda veriler kendi sunucunuzdaki tek dosyalık veritabanında tutulur.',
   },
   {
     q: 'POS’um var, neden ayrı bir ürün kullanayım?',

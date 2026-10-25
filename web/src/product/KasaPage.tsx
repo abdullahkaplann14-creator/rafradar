@@ -17,7 +17,7 @@ import {
   Wallet,
   X,
 } from 'lucide-react';
-import { api, errorMessage } from '../api';
+import { api, errorMessage, isStaticMode } from '../api';
 import { useAccountingActions } from '../hooks/useAccountingActions';
 import { ProductTopbar } from '../components/ProductTopbar';
 import { Toasts, useToasts } from '../components/Toast';
@@ -157,6 +157,14 @@ export function KasaPage() {
     setModal(null);
   };
 
+  const handleDownload = async () => {
+    try {
+      await api.downloadTransactionsCsv(month);
+    } catch (error) {
+      notify('error', errorMessage(error));
+    }
+  };
+
   const summary = data?.summary;
   const vatLabel = (summary?.vatPayable ?? 0) < 0 ? 'Devreden KDV' : 'KDV ödenecek';
   const vatValue = Math.abs(summary?.vatPayable ?? 0);
@@ -182,17 +190,17 @@ export function KasaPage() {
             </p>
           </div>
           <div className="pd-hero-actions">
-            <a
+            <button
+              type="button"
               className={`button button--outline button--small ${
                 data?.transactions.length ? '' : 'is-disabled'
               }`}
-              href={data?.transactions.length ? api.transactionCsvUrl(month) : undefined}
-              download
-              aria-disabled={!data?.transactions.length}
+              onClick={handleDownload}
+              disabled={!data?.transactions.length}
             >
               <Download size={14} />
               CSV indir
-            </a>
+            </button>
             <button type="button" className="button button--primary" onClick={openCreate}>
               <Plus size={16} />
               Yeni işlem
@@ -555,7 +563,9 @@ export function KasaPage() {
       <footer className="pd-footer">
         <span>
           <span className="live-dot" />
-          Kasa ve raf aynı veritabanında · kalıcı
+          {isStaticMode
+            ? 'Demo: raf ve kasa bu tarayıcıda kalıcı'
+            : 'Kasa ve raf aynı veritabanında · kalıcı'}
         </span>
         <span>RafRadar demo · {new Date().getFullYear()}</span>
       </footer>
