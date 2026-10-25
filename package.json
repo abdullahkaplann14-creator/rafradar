@@ -1,0 +1,25 @@
+{
+  "name": "rafradar",
+  "version": "1.0.0",
+  "private": true,
+  "description": "RafRadar — kafeler için son kullanma ve fire takibi",
+  "engines": {
+    "node": ">=24.0.0"
+  },
+  "workspaces": [
+    "api",
+    "web"
+  ],
+  "scripts": {
+    "dev": "concurrently -k -n api,web -c green,yellow \"npm run dev -w api\" \"npm run dev -w web\"",
+    "dev:api": "npm run dev -w api",
+    "dev:web": "npm run dev -w web",
+    "demo": "npm run demo -w api",
+    "reset": "npm run reset -w api",
+    "test:api": "npm run test -w api",
+    "build": "npm run build -w web"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
