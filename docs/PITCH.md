@@ -4,34 +4,36 @@
 
 ## 0-15 sn · Problem
 
-“Kafelerde en pahalı ürün, fark edilmeyen üründür. Peynir arkada kalır, sütün tarihi
-geçer, limon çöpe gider. Ay sonunda kimse ne kadar fire verdiğini bilmez. Çünkü bu
-kayıp hiçbir yere yazılmaz.”
+“Kafelerde iki sessiz kayıp var. Birincisi raf: peynir arkada kalır, sütün tarihi geçer,
+limon çöpe gider. İkincisi kasa: günün geliri ve gideri ayrı bir defterde kaybolur. Ay
+sonunda kimse ne kadar fire verdiğini, ne kadar kazandığını bilmez.”
 
-## 15-35 sn · Kim ve neden bugün
+## 15-30 sn · Kim ve neden bugün
 
-“Bunu 3-15 kişilik bağımsız kafeler için yaptım. Gıda maliyetleri her ay artıyor;
-aynı ürünü ikinci kez satın almak artık daha pahalı. Buna rağmen fire hâlâ Excel’de,
+“Bunu 3-15 kişilik bağımsız kafeler için yaptım. Gıda maliyetleri her ay artıyor; aynı
+ürünü ikinci kez satın almak daha pahalı. Buna rağmen fire ve kasa hâlâ Excel’de,
 WhatsApp’ta veya kafada tutuluyor.”
 
-## 35-60 sn · Çözüm + 10 saniyelik demo
+## 30-55 sn · Çözüm + demo
 
-“RafRadar’da ürünü 10 saniyede ekliyorsun: ad, miktar, maliyet, son tarih. Panel sana
-bu hafta riskte olan ürünleri ve TL karşılığını gösteriyor. Mesela şu an 1.366 liralık
-ürün riskte. Ürünü indirimle kurtardıysan ‘Kurtardım’a, çöpe gittiyse ‘Fire’ye basıyorsun.
-Özet anında güncelleniyor.”
+“RafRadar’da ürünü 10 saniyede ekliyorsun: ad, miktar, maliyet, son tarih. Panel bu
+hafta riskte olan ürünleri ve TL karşılığını gösteriyor. Mesela şu an 1.366 liralık ürün
+riskte. İndirimle kurtardıysan ‘Kurtardım’a, çöpe gittiyse ‘Fire’ye basıyorsun.
 
-## 60-80 sn · Değer
+Aynı panelde kasa var: gün sonu satışı ve süt alımını giriyorsun. Gelir, gider, net kâr
+ve ödenecek KDV anında güncelleniyor. Yani raf ve kasa aynı ekranda.”
 
-“Böylece iki şeyi görüyorsun: bu hafta neyi kurtarabilirim ve bu ay gerçekten ne
-kaybettim? RafRadar muhasebe programı değil; tek işi rafın parasını görünür kılmak.
-Kurulum yok, POS’a dokunmuyor.”
+## 55-75 sn · Değer
 
-## 80-90 sn · Fiyat + CTA
+“Böylece iki sorunun cevabı hazır: bu hafta neyi kurtarabilirim ve bu ay gerçekten ne
+kazandım? RafRadar tam bir muhasebe programı değil; tek işi rafın ve kasanın günlük
+kararını görünür kılmak. Kurulum yok, POS’a dokunmuyor.”
 
-“Başlangıç ayda 149 lira, Pro ayda 299 lira. Pro’da sınırsız ürün ve CSV var. 14 gün
-ücretsiz, kredi kartı istemiyoruz. İlk ürünü ekle, bu hafta kaç liranın riskte olduğunu
-gör.”
+## 75-90 sn · Fiyat + CTA
+
+“Başlangıç ayda 149 lira, Pro ayda 299 lira. Pro’da sınırsız ürün, kasa ve KDV özeti,
+CSV var. 14 gün ücretsiz, kredi kartı istemiyoruz. İlk ürünü ekle; bu hafta kaç liranın
+riskte olduğunu gör.”
 
 ## Jüri sorularına hazır cevaplar
 
@@ -39,8 +41,13 @@ gör.”
 “Tek şubeli, 3-15 kişilik bağımsız kafelere. Pro plan ayda 299 lira; günde bir ürün
 kurtaran bir kafe için ilk haftada kendini çıkarır.”
 
+**“Kasa tam muhasebe mi?”**
+“Hayır. E-fatura veya beyanname değil. Günlük gelir-gideri, ödeme yöntemini ve KDV
+özetini gösteriyor. Küçük kafenin ‘bugün ne oldu?’ sorusuna cevap veriyor.”
+
 **“Ajana nerede müdahale ettin?”**
-“Fikri ve fiyatı ben seçtim; kapsamı YAPMAYACAKLARIM listesiyle kestim. Ajana önce
-veri şemasını ve tek akışı kurdurdum. Sonra tarayıcıda sıfır veri, hatalı form, fire,
-mobil ve yenileme testlerini koşturdum. Footer ve SSS başlığındaki hiyerarşi sorunlarını
-ekran görüntüsüne bakarak düzelttim. Auth ve ödeme eklemesine izin vermedim.”
+“Fikri, hedef kitleyi ve fiyatı ben seçtim; kapsamı YAPMAYACAKLARIM listesiyle kestim.
+Önce raf akışını, sonra kasayı kurdurdum. Tarayıcıda sıfır veri, hatalı form, fire,
+gelir/gider, KDV, ay filtresi, silme, yenileme ve mobil testlerini koşturdum. Ekran
+görüntüsünde kasa kartındaki dekorun değerleri örtmesini ve mobilde gizlenen ‘Yeni
+işlem’ butonunu düzelttim. Auth, gerçek ödeme ve e-fatura eklenmesine izin vermedim.”
