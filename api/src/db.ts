@@ -36,6 +36,7 @@ db.exec(`
     payment_method TEXT NOT NULL,
     document_no    TEXT,
     vat_rate       INTEGER NOT NULL DEFAULT 0,
+    sold           INTEGER NOT NULL DEFAULT 1,
     note           TEXT,
     created_at     TEXT NOT NULL,
     updated_at     TEXT NOT NULL
@@ -43,6 +44,14 @@ db.exec(`
 
   CREATE INDEX IF NOT EXISTS idx_transactions_date ON transactions(date);
 `);
+
+// Eski veritabanları için satış durumu kolonu.
+const transactionColumns = db.prepare('PRAGMA table_info(transactions)').all() as {
+  name: string;
+}[];
+if (!transactionColumns.some((column) => column.name === 'sold')) {
+  db.exec('ALTER TABLE transactions ADD COLUMN sold INTEGER NOT NULL DEFAULT 1');
+}
 
 export const CATEGORIES = [
   'Süt & Krema',
@@ -110,6 +119,7 @@ export type Transaction = {
   paymentMethod: PaymentMethod;
   documentNo: string | null;
   vatRate: VatRate;
+  sold: boolean;
   note: string | null;
   createdAt: string;
   updatedAt: string;
@@ -124,16 +134,19 @@ export type TransactionInput = {
   paymentMethod: PaymentMethod;
   documentNo?: string | null;
   vatRate: VatRate;
+  sold?: boolean;
   note?: string | null;
 };
 
 export type AccountingSummary = {
   month: string;
   incomeTotal: number;
+  pendingIncomeTotal: number;
   expenseTotal: number;
   net: number;
   transactionCount: number;
   incomeCount: number;
+  pendingIncomeCount: number;
   expenseCount: number;
   vatCollected: number;
   vatDeductible: number;
@@ -175,6 +188,8 @@ export type Dashboard = {
   accounting: {
     month: string;
     incomeTotal: number;
+    pendingIncomeTotal: number;
+    pendingIncomeCount: number;
     expenseTotal: number;
     net: number;
     transactionCount: number;
@@ -223,6 +238,7 @@ type TransactionRow = {
   payment_method: string;
   document_no: string | null;
   vat_rate: number;
+  sold: number;
   note: string | null;
   created_at: string;
   updated_at: string;
@@ -238,6 +254,7 @@ const toTransaction = (row: TransactionRow): Transaction => ({
   paymentMethod: row.payment_method as PaymentMethod,
   documentNo: row.document_no,
   vatRate: Number(row.vat_rate) as VatRate,
+  sold: Boolean(row.sold),
   note: row.note,
   createdAt: row.created_at,
   updatedAt: row.updated_at,
@@ -443,6 +460,8 @@ export function getDashboard(): Dashboard {
     accounting: {
       month: accounting.month,
       incomeTotal: accounting.summary.incomeTotal,
+      pendingIncomeTotal: accounting.summary.pendingIncomeTotal,
+      pendingIncomeCount: accounting.summary.pendingIncomeCount,
       expenseTotal: accounting.summary.expenseTotal,
       net: accounting.summary.net,
       transactionCount: accounting.summary.transactionCount,
@@ -660,12 +679,23 @@ export function loadDemo(): {
       paymentMethod: 'Nakit',
       vatRate: 0,
     },
+    {
+      type: 'income',
+      category: 'Satış',
+      amount: 3200,
+      date: monthDate(2),
+      description: 'Telefonla ayrılan pasta siparişi',
+      paymentMethod: 'Havale',
+      vatRate: 10,
+      sold: false,
+      note: 'Teslim edilince “Satıldı” olarak işaretle.',
+    },
   ];
 
   const insertTransaction = db.prepare(
     `INSERT INTO transactions
-     (id, type, category, amount, date, description, payment_method, document_no, vat_rate, note, created_at, updated_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+     (id, type, category, amount, date, description, payment_method, document_no, vat_rate, sold, note, created_at, updated_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
   );
 
   db.exec('BEGIN');
@@ -707,6 +737,7 @@ export function loadDemo(): {
           sample.paymentMethod,
           sample.documentNo?.trim() ? sample.documentNo.trim() : null,
           sample.vatRate,
+          sample.type === 'income' ? (sample.sold === false ? 0 : 1) : 1,
           sample.note?.trim() ? sample.note.trim() : null,
           createdAt,
           createdAt,
@@ -777,8 +808,8 @@ export function createTransaction(input: TransactionInput): Transaction {
   const now = new Date().toISOString();
   db.prepare(
     `INSERT INTO transactions
-     (id, type, category, amount, date, description, payment_method, document_no, vat_rate, note, created_at, updated_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+     (id, type, category, amount, date, description, payment_method, document_no, vat_rate, sold, note, created_at, updated_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
   ).run(
     id,
     input.type,
@@ -789,6 +820,7 @@ export function createTransaction(input: TransactionInput): Transaction {
     input.paymentMethod,
     input.documentNo?.trim() ? input.documentNo.trim() : null,
     input.vatRate,
+    input.type === 'income' ? (input.sold === false ? 0 : 1) : 1,
     input.note?.trim() ? input.note.trim() : null,
     now,
     now,
@@ -837,6 +869,10 @@ export function updateTransaction(
     fields.push('vat_rate = ?');
     values.push(patch.vatRate);
   }
+  if (patch.sold !== undefined) {
+    fields.push('sold = ?');
+    values.push(patch.sold ? 1 : 0);
+  }
   if (patch.note !== undefined) {
     fields.push('note = ?');
     values.push(patch.note?.trim() ? patch.note.trim() : null);
@@ -863,22 +899,31 @@ export function resetTransactions(): number {
 export function getAccounting(month = currentMonth()): AccountingData {
   const transactions = getAllTransactions({ month });
   const income = transactions.filter((transaction) => transaction.type === 'income');
+  const soldIncome = income.filter((transaction) => transaction.sold);
+  const pendingIncome = income.filter((transaction) => !transaction.sold);
   const expense = transactions.filter((transaction) => transaction.type === 'expense');
 
-  const incomeTotal = round(income.reduce((sum, transaction) => sum + transaction.amount, 0));
+  const incomeTotal = round(
+    soldIncome.reduce((sum, transaction) => sum + transaction.amount, 0),
+  );
+  const pendingIncomeTotal = round(
+    pendingIncome.reduce((sum, transaction) => sum + transaction.amount, 0),
+  );
   const expenseTotal = round(expense.reduce((sum, transaction) => sum + transaction.amount, 0));
   const vatCollected = round(
-    income.reduce((sum, transaction) => sum + vatOf(transaction.amount, transaction.vatRate), 0),
+    soldIncome.reduce(
+      (sum, transaction) => sum + vatOf(transaction.amount, transaction.vatRate),
+      0,
+    ),
   );
   const vatDeductible = round(
     expense.reduce((sum, transaction) => sum + vatOf(transaction.amount, transaction.vatRate), 0),
   );
   const allTimeNet = round(
-    getAllTransactions().reduce(
-      (sum, transaction) =>
-        sum + (transaction.type === 'income' ? transaction.amount : -transaction.amount),
-      0,
-    ),
+    getAllTransactions().reduce((sum, transaction) => {
+      if (transaction.type === 'expense') return sum - transaction.amount;
+      return transaction.sold ? sum + transaction.amount : sum;
+    }, 0),
   );
 
   return {
@@ -886,10 +931,12 @@ export function getAccounting(month = currentMonth()): AccountingData {
     summary: {
       month,
       incomeTotal,
+      pendingIncomeTotal,
       expenseTotal,
       net: round(incomeTotal - expenseTotal),
       transactionCount: transactions.length,
       incomeCount: income.length,
+      pendingIncomeCount: pendingIncome.length,
       expenseCount: expense.length,
       vatCollected,
       vatDeductible,
@@ -912,6 +959,7 @@ export function transactionsToCsv(month = currentMonth()): string {
   const header = [
     'Tarih',
     'Tür',
+    'Satış Durumu',
     'Kategori',
     'Açıklama',
     'Ödeme',
@@ -931,13 +979,24 @@ export function transactionsToCsv(month = currentMonth()): string {
       [
         escape(transaction.date),
         escape(typeLabel[transaction.type]),
+        escape(
+          transaction.type === 'income'
+            ? transaction.sold
+              ? 'Satıldı'
+              : 'Satılmadı'
+            : '—',
+        ),
         escape(transaction.category),
         escape(transaction.description),
         escape(transaction.paymentMethod),
         escape(transaction.documentNo ?? ''),
         escape(money(transaction.amount)),
         escape(`%${transaction.vatRate}`),
-        escape(money(vatOf(transaction.amount, transaction.vatRate))),
+        escape(
+          transaction.type === 'income' && !transaction.sold
+            ? '0,00'
+            : money(vatOf(transaction.amount, transaction.vatRate)),
+        ),
         escape(transaction.note ?? ''),
       ].join(';'),
     ),

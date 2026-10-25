@@ -151,12 +151,38 @@ try {
   );
   ok('kasa: kısmi güncelleme ve yeniden hesaplama');
 
+  const pending = createTransaction({
+    type: 'income',
+    category: 'Satış',
+    amount: 400,
+    date: dateWithOffset(0),
+    description: 'Bekleyen rezervasyon',
+    paymentMethod: 'Havale',
+    vatRate: 20,
+    sold: false,
+  });
+  accounting = getAccounting();
+  assert.equal(accounting.summary.incomeTotal, 1200);
+  assert.equal(accounting.summary.pendingIncomeTotal, 400);
+  assert.equal(accounting.summary.pendingIncomeCount, 1);
+  assert.equal(accounting.summary.net, 700);
+  assert.equal(accounting.summary.vatCollected, 200);
+  updateTransaction(pending.id, { sold: true });
+  accounting = getAccounting();
+  assert.equal(accounting.summary.incomeTotal, 1600);
+  assert.equal(accounting.summary.pendingIncomeTotal, 0);
+  assert.equal(accounting.summary.net, 1100);
+  assert.equal(accounting.summary.vatCollected, 266.67);
+  ok('satılmadı işaretli satış ciro/KDV dışında; satıldı yapınca dahil');
+
   const expenseTx = accounting.transactions.find((transaction) => transaction.type === 'expense')!;
   assert.equal(deleteTransaction(expenseTx.id), true);
+  deleteTransaction(pending.id);
   assert.equal(getAccounting().summary.expenseTotal, 0);
   const txCsv = transactionsToCsv();
   assert.ok(txCsv.includes('Gün sonu satış'));
   assert.ok(txCsv.includes('Gelir'));
+  assert.ok(txCsv.includes('Satıldı'));
   ok('kasa: silme + CSV');
 
   resetTransactions();
@@ -166,7 +192,7 @@ try {
   assert.equal(getDashboard().items.length, 0);
   const demo = loadDemo();
   assert.equal(demo.inserted, 10);
-  assert.equal(demo.transactionsInserted, 8);
+  assert.equal(demo.transactionsInserted, 9);
   assert.equal(loadDemo().skipped, true);
   dashboard = getDashboard();
   assert.equal(dashboard.items.length, 10);
@@ -174,15 +200,19 @@ try {
   assert.ok(dashboard.summary.rescuedValue > 0);
   assert.ok(dashboard.summary.wastedValue > 0);
   assert.equal(dashboard.accounting.incomeTotal, 35730);
+  assert.equal(dashboard.accounting.pendingIncomeTotal, 3200);
   assert.equal(dashboard.accounting.expenseTotal, 18690);
   assert.equal(dashboard.accounting.net, 17040);
-  assert.equal(dashboard.accounting.transactionCount, 8);
-  ok('boş panoya 10 örnek ürün + 8 kasa kaydı, ikinci çağrı korunur');
+  assert.equal(dashboard.accounting.transactionCount, 9);
+  assert.equal(dashboard.accounting.pendingIncomeCount, 1);
+  ok('boş panoya 10 örnek ürün + 9 kasa kaydı, ikinci çağrı korunur');
 
   const demoAccounting = getAccounting();
-  assert.equal(demoAccounting.summary.transactionCount, 8);
+  assert.equal(demoAccounting.summary.transactionCount, 9);
   assert.equal(demoAccounting.summary.net, 17040);
+  assert.equal(demoAccounting.summary.pendingIncomeTotal, 3200);
   assert.ok(demoAccounting.summary.vatPayable > 0);
+  assert.ok(transactionsToCsv().includes('Satılmadı'));
 
   const csv = itemsToCsv();
   assert.ok(csv.startsWith('\uFEFF'));

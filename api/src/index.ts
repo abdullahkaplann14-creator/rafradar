@@ -122,6 +122,7 @@ const transactionSchema = z.object({
     .int()
     .refine((value) => (VAT_RATES as readonly number[]).includes(value), 'Geçerli KDV oranı seç')
     .transform((value) => value as VatRate),
+  sold: z.boolean({ invalid_type_error: 'Satış durumu doğru/yanlış olmalı' }).optional(),
   note: z.string().trim().max(300, 'Not en fazla 300 karakter olabilir').optional().nullable(),
 });
 
@@ -209,7 +210,11 @@ app.post('/api/transactions', (req, res) => {
       'category',
     );
   }
-  const transaction = createTransaction(parsed.data as TransactionInput);
+  const input = {
+    ...parsed.data,
+    sold: parsed.data.type === 'income' ? parsed.data.sold !== false : true,
+  } as TransactionInput;
+  const transaction = createTransaction(input);
   res.status(201).json(transaction);
 });
 
@@ -246,10 +251,11 @@ app.patch('/api/transactions/:id', (req, res) => {
     );
   }
 
-  const transaction = updateTransaction(
-    req.params.id,
-    parsed.data as Partial<TransactionInput>,
-  );
+  const patch = { ...parsed.data } as Partial<TransactionInput>;
+  if (nextType === 'expense') patch.sold = true;
+  else if (patch.sold === undefined && existing.type !== 'income') patch.sold = true;
+
+  const transaction = updateTransaction(req.params.id, patch);
   if (!transaction) return fail(res, 404, 'NOT_FOUND', 'Kasa kaydı bulunamadı');
   res.json(transaction);
 });
